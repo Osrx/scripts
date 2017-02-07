@@ -16,13 +16,10 @@ cleanup() {
 }
 
 loginPgu() {
-    # post login data and check redirect URL - doesnt' work
-#    if ! curl -c $cjar -b $cjar -s -D - -o /dev/null -d "username=$login&password=$password" https://login.mos.ru/eaidit/eaiditweb/outerlogin.do | grep -qF "https://login.mos.ru/eaidit/eaiditweb/loginok.do"; then
-    # get cookies
-    curl -c $cjar -k -s -L "https://pgu.mos.ru/ru/oauth?login=true" > /dev/null
     # post login data, follow redirects, check resulting page
-    curl -c $cjar -b $cjar -k -s -L --data-urlencode "j_username=$login" --data-urlencode "j_password=$password" --data-urlencode "accessType=alias" https://oauth20.mos.ru/sps/j_security_check > /dev/null
-    if ! curl -c $cjar -b $cjar -k -s "https://pgu.mos.ru/common/js_v3/base/config.js.php" | grep -q '"isAuthorized":false'; then
+    curl -k -L -s -c $cjar 'https://www.mos.ru/api/oauth20/v1/frontend/json/ru/process/enter?redirect=https%3A%2F%2Fmy.mos.ru%2Fmy%2F' >> /dev/null
+    if ! curl -k -L -s -c $cjar -b $cjar "https://oauth20.mos.ru/sps/j_security_check?j_username=$login&j_password=$password&accessType=alias" \
+    |  grep -q "SURNAME"; then
         echo "Login failed!" >&2
         cleanup
         exit 1
@@ -35,8 +32,7 @@ getWaterCounterIds() {
 
 getWaterIndications() {
     # get water counters
-    curl -c $cjar -b $cjar -k -s 'https://pgu.mos.ru/ru/application/guis/1111/' \
-        --data "getCountersInfo=true&requestParams%5BpaycodeFlat%5D%5Bpaycode%5D=$paycode&requestParams%5BpaycodeFlat%5D%5Bflat%5D=$kv"
+    curl -k -L -s -c $cjar -b $cjar -k "https://www.mos.ru/pgu/ru/application/guis/1111/?getCountersInfo=true&requestParams%5BpaycodeFlat%5D%5Bpaycode%5D=$paycode&requestParams%5BpaycodeFlat%5D%5Bflat%5D=$kv"
 }
 
 removeWaterIndication() {
