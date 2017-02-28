@@ -16,8 +16,10 @@ cleanup() {
 }
 
 loginPgu() {
-    # post login data, follow redirects, check resulting page
     curl -k -L -s -c $cjar 'https://www.mos.ru/api/oauth20/v1/frontend/json/ru/process/enter?redirect=https%3A%2F%2Fmy.mos.ru%2Fmy%2F' >> /dev/null
+    curl -k -L -s -c $cjar -b $cjar 'https://www.mos.ru/api/oauth20/v1/frontend/json/ru/process/enter?redirect=https%3A%2F%2Fmy.mos.ru%2Fmy%2F' >> /dev/null
+    curl -k -L -s -c $cjar -b $cjar 'https://www.mos.ru/api/oauth20/v1/frontend/json/ru/process/enter?redirect=https%3A%2F%2Fmy.mos.ru%2Fmy%2F' >> /dev/null
+
     if ! curl -k -L -s -c $cjar -b $cjar "https://oauth20.mos.ru/sps/j_security_check?j_username=$login&j_password=$password&accessType=alias" \
     |  grep -q "SURNAME"; then
         echo "Login failed!" >&2
@@ -36,15 +38,15 @@ getWaterIndications() {
 }
 
 removeWaterIndication() {
-    curl -c $cjar -b $cjar -k -s -d "removeCounterIndication=true&values%5Bpaycode%5D=$paycode&values%5BcounterId%5D=$1" https://pgu.mos.ru/ru/application/guis/1111/ > /dev/null
+    curl -c $cjar -b $cjar -k -s -d "removeCounterIndication=true&values%5Bpaycode%5D=$paycode&values%5BcounterId%5D=$1" https://www.mos.ru/pgu/ru/application/guis/1111/ > /dev/null
 }
 
 setWaterIndications() {
     hot="$1"
     cold="$2"
     [ "$hot" -gt "$cold" ] && echo "Error: Hot counter value ($hot) > cold counter value ($cold)!" && exit 1
-    curl -c $cjar -b $cjar -k -s -d "addCounterInfo=true&values%5Bpaycode%5D=$paycode&values%5Bindications%5D%5B0%5D%5BcounterNum%5D=$type_1&values%5Bindications%5D%5B0%5D%5BcounterVal%5D=$cold&values%5Bindications%5D%5B0%5D%5Bperiod%5D=$dt&values%5Bindications%5D%5B0%5D%5Bnum%5D=" https://pgu.mos.ru/ru/application/guis/1111/  > /dev/null
-    curl -c $cjar -b $cjar -k -s -d "addCounterInfo=true&values%5Bpaycode%5D=$paycode&values%5Bindications%5D%5B0%5D%5BcounterNum%5D=$type_2&values%5Bindications%5D%5B0%5D%5BcounterVal%5D=$hot&values%5Bindications%5D%5B0%5D%5Bperiod%5D=$dt&values%5Bindications%5D%5B0%5D%5Bnum%5D=" https://pgu.mos.ru/ru/application/guis/1111/  > /dev/null
+    curl -c $cjar -b $cjar -k -s -d "addCounterInfo=true&values%5Bpaycode%5D=$paycode&values%5Bindications%5D%5B0%5D%5BcounterNum%5D=$type_1&values%5Bindications%5D%5B0%5D%5BcounterVal%5D=$cold&values%5Bindications%5D%5B0%5D%5Bperiod%5D=$dt&values%5Bindications%5D%5B0%5D%5Bnum%5D=" https://www.mos.ru/pgu/ru/application/guis/1111/  > /dev/null
+    curl -c $cjar -b $cjar -k -s -d "addCounterInfo=true&values%5Bpaycode%5D=$paycode&values%5Bindications%5D%5B0%5D%5BcounterNum%5D=$type_2&values%5Bindications%5D%5B0%5D%5BcounterVal%5D=$hot&values%5Bindications%5D%5B0%5D%5Bperiod%5D=$dt&values%5Bindications%5D%5B0%5D%5Bnum%5D=" https://www.mos.ru/pgu/ru/application/guis/1111/  > /dev/null
 }
 
 getMosenergoData() {
